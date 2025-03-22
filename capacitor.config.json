@@ -1,0 +1,23 @@
+{
+  "appId": "com.frederickburginteractivemap.app",
+  "appName": "npx cap add androidnpx cap add iosnpx cap sync",
+  "webDir": "www",
+  "cordova": {
+    "preferences": {
+      "Orientation": "default",
+      "DisallowOverscroll": "true",
+      "BackupWebStorage": "none",
+      "SplashScreenDelay": "2000",
+      "AutoHideSplashScreen": "false",
+      "SplashMaintainAspectRatio": "true",
+      "FadeSplashScreenDuration": "300",
+      "ShowSplashScreenSpinner": "false",
+      "SplashShowOnlyFirstTime": "false",
+      "StatusBarOverlaysWebView": "true",
+      "StatusBarBackgroundColor": "#5D4037",
+      "StatusBarStyle": "lightcontent",
+      "android-buildToolsVersion": "30.0.3",
+      "android-targetSdkVersion": "30"
+    }
+  }
+}

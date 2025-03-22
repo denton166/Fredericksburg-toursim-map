@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fredericksburg Interactive Tourism Map</title>
+
+    <!-- Meta tags -->
+    <meta name="description" content="Explore Fredericksburg, Texas with our interactive tourism map featuring wineries, restaurants, accommodations, and attractions.">
+    <meta name="keywords" content="Fredericksburg, Texas, tourism, map, wineries, restaurants, hotels">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="fonts/playfair-display-bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/open-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
+
+    <!-- Preconnect to third-party domains -->
+    <link rel="preconnect" href="https://api.mapbox.com">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/fredericksburg-map.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico">
+
+    <!-- Open Graph tags for social sharing -->
+    <meta property="og:title" content="Fredericksburg Interactive Tourism Map">
+    <meta property="og:description" content="Explore Fredericksburg, Texas with our interactive tourism map">
+    <meta property="og:image" content="https://fredericksburg-tourism.com/og-image.jpg">
+    <meta property="og:url" content="https://fredericksburg-tourism.com">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Header Section -->
+        <header class="site-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <a href="/">
+                            <img src="images/logo.svg" alt="Fredericksburg Tourism" class="logo-img">
+                        </a>
+                    </div>
+                    <nav class="main-nav">
+                        <ul class="nav-list">
+                            <li class="nav-item"><a href="#" class="nav-link active">Map</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Events</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Wineries</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Dining</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Lodging</a></li>
+                            <li class="nav-item"><a href="#" class="nav-link">Plan Your Trip</a></li>
+                        </ul>
+                    </nav>
+                    <div class="header-actions">
+                        <button id="search-toggle" class="btn-icon" aria-label="Search">
+                            <i class="icon-search"></i>
+                        </button>
+                        <button id="menu-toggle" class="btn-icon d-md-none" aria-label="Menu">
+                            <i class="icon-menu"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="map-container">
+                <!-- Map Search & Filters Sidebar -->
+                <div class="map-sidebar">
+                    <div class="search-container">
+                        <div class="search-bar">
+                            <input type="text" id="map-search" class="search-input" placeholder="Search for attractions, restaurants, etc.">
+                            <button class="search-btn">
+                                <i class="icon-search"></i>
+                            </button>
+                        </div>
+
+                        <div class="filter-section">
+                            <h3>Categories</h3>
+                            <div id="category-selector" class="category-options">
+                                <!-- Categories will be populated dynamically -->
+                                <div class="category-option" data-category="all">
+                                    <div class="category-icon">
+                                        <i class="icon-all"></i>
+                                    </div>
+                                    <span class="category-name">All</span>
+                                </div>
+                                <div class="category-option" data-category="wineries">
+                                    <div class="category-icon">
+                                        <i class="icon-wine"></i>
+                                    </div>
+                                    <span class="category-name">Wineries</span>
+                                </div>
+                                <div class="category-option" data-category="restaurants">
+                                    <div class="category-icon">
+                                        <i class="icon-food"></i>
+                                    </div>
+                                    <span class="category-name">Restaurants</span>
+                                </div>
+                                <div class="category-option" data-category="lodging">
+                                    <div class="category-icon">
+                                        <i class="icon-hotel"></i>
+                                    </div>
+                                    <span class="category-name">Lodging</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-section">
+                            <h3>Filters</h3>
+                            <div id="category-filters" class="filter-options">
+                                <!-- Filters will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="results-container">
+                        <h3>Results <span id="results-count" class="results-count">(0)</span></h3>
+                        <div id="business-list" class="business-list">
+                            <!-- Results will be populated dynamically -->
+                            <div class="loading-indicator">
+                                <div class="spinner"></div>
+                                <p>Loading results...</p>
+                            </div>
+                        </div>
+
+                        <div class="pagination">
+                            <button class="pagination-prev" disabled>Previous</button>
+                            <span class="pagination-info">Page 1 of 1</span>
+                            <button class="pagination-next" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Map -->
+                <div class="map-view">
+                    <div id="map" class="map"></div>
+
+                    <div class="map-controls">
+                        <button id="zoom-in" class="map-control-button" aria-label="Zoom In">
+                            <i class="icon-plus"></i>
+                        </button>
+                        <button id="zoom-out" class="map-control-button" aria-label="Zoom Out">
+                            <i class="icon-minus"></i>
+                        </button>
+                        <button id="locate-me" class="map-control-button" aria-label="My Location">
+                            <i class="icon-location"></i>
+                        </button>
+                        <button id="reset-map" class="map-control-button" aria-label="Reset Map">
+                            <i class="icon-home"></i>
+                        </button>
+                    </div>
+
+                    <div id="map-legend" class="map-legend">
+                        <!-- Legend will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Detail Panel (hidden by default) -->
+            <div id="business-detail" class="business-detail-panel">
+                <button class="close-panel" aria-label="Close">
+                    <i class="icon-close"></i>
+                </button>
+                <div class="business-detail-container">
+                    <!-- Business details will be populated dynamically -->
+                </div>
+                <div class="business-detail-actions">
+                    <button id="add-to-favorites" class="btn btn-icon-text">
+                        <i class="icon-heart"></i> Add to Favorites
+                    </button>
+                    <button id="add-to-itinerary" class="btn btn-icon-text">
+                        <i class="icon-calendar"></i> Add to Itinerary
+                    </button>
+                    <button id="share-business" class="btn btn-icon-text">
+                        <i class="icon-share"></i> Share
+                    </button>
+                </div>
+            </div>
+
+            <!-- Itinerary Builder (hidden by default) -->
+            <div id="itinerary-builder" class="side-panel">
+                <div class="panel-header">
+                    <h2>My Itinerary</h2>
+                    <button class="close-panel" aria-label="Close">
+                        <i class="icon-close"></i>
+                    </button>
+                </div>
+                <div class="panel-content">
+                    <div id="itinerary-items" class="itinerary-items">
+                        <!-- Itinerary items will be populated dynamically -->
+                        <div class="empty-state">
+                            <p>Your itinerary is empty.</p>
+                            <p>Add places from the map to create your perfect Fredericksburg experience!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <button id="save-itinerary" class="btn btn-primary">Save Itinerary</button>
+                    <button id="share-itinerary" class="btn btn-secondary">Share</button>
+                    <button id="print-itinerary" class="btn btn-secondary">Print</button>
+                </div>
+            </div>
+
+            <!-- Usability Features Sidebar -->
+            <div id="usability-features" class="usability-features">
+                <!-- Favorites Container -->
+                <div class="favorites-container feature-card">
+                    <div class="feature-header">
+                        <h3>My Favorites</h3>
+                        <button id="manage-favorites-btn" class="btn btn-sm">Manage</button>
+                    </div>
+                    <div class="favorites-content">
+                        <div id="favorites-list" class="favorites-list">
+                            <!-- Favorites will be dynamically populated here -->
+                            <div class="empty-favorites-message">
+                                <p>You haven't saved any favorites yet.</p>
+                                <p>Click the heart icon on any business to add it to your favorites.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recently Viewed -->
+                <div class="recently-viewed-container feature-card">
+                    <div class="feature-header">
+                        <h3>Recently Viewed</h3>
+                        <button id="clear-history-btn" class="btn btn-sm">Clear</button>
+                    </div>
+                    <div class="recently-viewed-content">
+                        <div id="recently-viewed-list" class="recently-viewed-list">
+                            <!-- Recently viewed items will be dynamically populated here -->
+                            <div class="empty-history-message">
+                                <p>No recently viewed businesses.</p>
+                                <p>Businesses you view will appear here for quick access.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Action Button (for mobile) -->
+            <div class="fab-container">
+                <button id="main-fab" class="fab-button" aria-label="Quick Actions">
+                    <i class="icon-plus"></i>
+                </button>
+                <div id="fab-menu" class="fab-menu">
+                    <div id="fab-near-me" class="fab-item">
+                        <i class="icon-near-me"></i>
+                        <span>Near Me</span>
+                    </div>
+                    <div id="fab-favorites" class="fab-item">
+                        <i class="icon-heart"></i>
+                        <span>Favorites</span>
+                    </div>
+                    <div id="fab-itinerary" class="fab-item">
+                        <i class="icon-calendar"></i>
+                        <span>Itinerary</span>
+                    </div>
+                    <div id="fab-filters" class="fab-item">
+                        <i class="icon-filter"></i>
+                        <span>Filters</span>
+                    </div>
+                </div>
+                <div id="fab-backdrop" class="fab-backdrop"></div>
+            </div>
+
+            <!-- Action Button Tray -->
+            <div class="action-buttons-tray">
+                <button id="share-map-btn" class="action-btn" title="Share">
+                    <i class="icon-share"></i>
+                    <span>Share</span>
+                </button>
+                <button id="print-map-btn" class="action-btn" title="Print">
+                    <i class="icon-print"></i>
+                    <span>Print</span>
+                </button>
+                <button id="offline-mode-btn" class="action-btn" title="Save for Offline">
+                    <i class="icon-download"></i>
+                    <span>Offline</span>
+                </button>
+                <button id="feedback-btn" class="action-btn" title="Send Feedback">
+                    <i class="icon-feedback"></i>
+                    <span>Feedback</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer Section -->
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-info">
+                        <img src="images/logo-small.svg" alt="Fredericksburg Tourism" class="footer-logo">
+                        <p>&copy; 2025 Fredericksburg Tourism Board</p>
+                    </div>
+                    <div class="footer-links">
+                        <div class="footer-nav">
+                            <h4>Explore</h4>
+                            <ul>
+                                <li><a href="#">Map</a></li>
+                                <li><a href="#">Events</a></li>
+                                <li><a href="#">Wineries</a></li>
+                                <li><a href="#">Dining</a></li>
+                                <li><a href="#">Lodging</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-nav">
+                            <h4>About</h4>
+                            <ul>
+                                <li><a href="#">About Fredericksburg</a></li>
+                                <li><a href="#">History</a></li>
+                                <li><a href="#">Contact Us</a></li>
+                                <li><a href="#">Visitor Center</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-nav">
+                            <h4>Resources</h4>
+                            <ul>
+                                <li><a href="#">Trip Planner</a></li>
+                                <li><a href="#">Local Transportation</a></li>
+                                <li><a href="#">Weather</a></li>
+                                <li><a href="#">Accessibility</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-newsletter">
+                        <h4>Stay Updated</h4>
+                        <p>Subscribe to our newsletter for the latest events and attractions</p>
+                        <form class="newsletter-form">
+                            <input type="email" placeholder="Your email address" required>
+                            <button type="submit" class="btn btn-primary">Subscribe</button>
+                        </form>
+                        <div class="social-links">
+                            <a href="#" aria-label="Facebook"><i class="icon-facebook"></i></a>
+                            <a href="#" aria-label="Twitter"><i class="icon-twitter"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="icon-instagram"></i></a>
+                            <a href="#" aria-label="Pinterest"><i class="icon-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-legal">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Use</a>
+                        <a href="#">Accessibility</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Modals -->
+        <!-- Share Modal -->
+        <div id="share-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Share This Map</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-section">
+                        <h4>Share Link</h4>
+                        <div class="copy-link-container">
+                            <input type="text" id="share-link-input" readonly>
+                            <button id="copy-link-btn" class="btn btn-primary">Copy</button>
+                        </div>
+                    </div>
+
+                    <div class="share-section">
+                        <h4>Share on Social Media</h4>
+                        <div class="social-share-buttons">
+                            <button class="social-btn facebook">
+                                <i class="icon-facebook"></i>
+                                <span>Facebook</span>
+                            </button>
+                            <button class="social-btn twitter">
+                                <i class="icon-twitter"></i>
+                                <span>Twitter</span>
+                            </button>
+                            <button class="social-btn instagram">
+                                <i class="icon-instagram"></i>
+                                <span>Instagram</span>
+                            </button>
+                            <button class="social-btn pinterest">
+                                <i class="icon-pinterest"></i>
+                                <span>Pinterest</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Messages and Notifications -->
+        <div id="error-container" class="error-container"></div>
+        <div id="notification-container" class="notification-container"></div>
+
+        <!-- Fallback Content for Slow or Failed Loading -->
+        <div id="map-fallback" class="map-fallback">
+            <div class="fallback-content">
+                <i class="icon-map"></i>
+                <h3>Map Loading...</h3>
+                <p>If the map doesn't load, you can:</p>
+                <ul>
+                    <li>Check your internet connection</li>
+                    <li>Refresh the page</li>
+                    <li>View our <a href="#" id="show-text-directory">text-based directory</a></li>
+                </ul>
+                <button id="retry-load-btn" class="btn btn-primary">Retry Loading Map</button>
+            </div>
+        </div>
+
+        <!-- Bottom Sheet Interface (for mobile filters) -->
+        <div id="bottom-sheet-overlay" class="bottom-sheet-overlay"></div>
+        <div id="bottom-sheet" class="bottom-sheet">
+            <div id="bottom-sheet-handle" class="bottom-sheet-handle"></div>
+            <div class="bottom-sheet-header">
+                <h3 class="bottom-sheet-title">Filters</h3>
+                <button id="bottom-sheet-close" class="bottom-sheet-close" aria-label="Close">
+                    <i class="icon-close"></i>
+                </button>
+            </div>
+            <div id="bottom-sheet-content" class="bottom-sheet-content">
+                <!-- Mobile filters will be populated here -->
+            </div>
+            <div class="bottom-sheet-footer">
+                <button id="reset-filters" class="btn btn-secondary">Reset</button>
+                <button id="apply-filters" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Essential JavaScript -->
+    <script src="js/fredericksburg-map.js" defer></script>
+
+    <!-- Cordova specific scripts - Step 5.2 update -->
+    <script src="cordova.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
