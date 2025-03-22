@@ -9,10 +9,13 @@ workflows:
       - xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release
     artifacts:
       - ios/App/build/Release-iphoneos/*.ipa
+
   android-workflow:
     name: Android Build
     environment:
-      android_signing: false
+      android_signing:
+        - credentials: android-keystore  # Name from Codemagic UI
+          environment_variable_setup: true
     scripts:
       - npm install
       - npx cap sync android
