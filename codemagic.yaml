@@ -1,16 +1,21 @@
-# codemagic.yaml
 workflows:
-  ios-emergency-build:
-    name: Guaranteed iOS Build
+  ios-workflow:
+    name: iOS Build
     environment:
       xcode: latest
     scripts:
-      - npm install -g @capacitor/cli cordova-res
       - npm install
-      - npm run build --if-present  # Bypass missing build script
-      - npx cap add ios --force
       - npx cap sync ios
-      - cd ios && pod install
-      - xcodebuild build -workspace App/App.xcworkspace -scheme App -configuration Release
+      - xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release
     artifacts:
-      - ios/App/build/Release-iphoneos/App.ipa
+      - ios/App/build/Release-iphoneos/*.ipa
+  android-workflow:
+    name: Android Build
+    environment:
+      android_signing: false
+    scripts:
+      - npm install
+      - npx cap sync android
+      - ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/apk/release/*.apk
