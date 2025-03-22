@@ -2,46 +2,20 @@ workflows:
   ios-workflow:
     name: iOS Build
     environment:
-      ios_signing:
-        distribution_type: development  # Use 'development' for testing
-        bundle_identifier: "com.fredericksburg.tourismmap"  # Your bundle ID from earlier
-      vars:
-        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
-        XCODE_SCHEME: "App"
       xcode: latest
     scripts:
-      # Install dependencies
-      - name: Install npm dependencies
-        script: |
-          npm install
-          npm install @capacitor/ios
-      
-      # Build web assets
-      - name: Build web assets
-        script: |
-          npm run build  # Assuming you have a build script in package.json
-      
-      # Capacitor iOS setup
-      - name: Add iOS platform
-        script: |
-          npx cap add ios
-      
-      - name: Sync iOS platform
-        script: |
-          npx cap sync ios
-      
-      # iOS native dependencies
-      - name: Install CocoaPods
-        script: |
-          cd ios/App && pod install
-      
-      # Build configuration
-      - name: Build IPA for development
-        script: |
-          xcode-project build-ipa \
-            --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
-            --scheme "$XCODE_SCHEME"
-    
+      - npm install
+      - npx cap sync ios
+      - xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release
     artifacts:
-      - ios/App/build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+      - ios/App/build/Release-iphoneos/*.ipa
+  android-workflow:
+    name: Android Build
+    environment:
+      android_signing: false
+    scripts:
+      - npm install
+      - npx cap sync android
+      - ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/apk/release/*.apk
