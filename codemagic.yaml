@@ -1,3 +1,4 @@
+# codemagic.yaml
 workflows:
   ios-emergency-build:
     name: Emergency iOS Build
