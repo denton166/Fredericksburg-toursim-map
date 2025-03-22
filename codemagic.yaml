@@ -3,8 +3,8 @@ workflows:
     name: iOS Build
     environment:
       ios_signing:
-        distribution_type: app_store  # Or "development" for testing
-        bundle_identifier: "YOUR_BUNDLE_ID"  # Replace with actual bundle ID
+        distribution_type: development  # Use 'development' for testing
+        bundle_identifier: "com.fredericksburg.tourismmap"  # Your bundle ID from earlier
       vars:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
@@ -14,21 +14,21 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install
-          npm install @capacitor/ios  # Explicitly install iOS platform
+          npm install @capacitor/ios
       
       # Build web assets
       - name: Build web assets
         script: |
-          npm run build  # Or "ionic build" if using Ionic
+          npm run build  # Assuming you have a build script in package.json
       
       # Capacitor iOS setup
       - name: Add iOS platform
         script: |
-          npx cap add ios  # Add iOS platform first
+          npx cap add ios
       
       - name: Sync iOS platform
         script: |
-          npx cap sync ios  # Sync after adding platform
+          npx cap sync ios
       
       # iOS native dependencies
       - name: Install CocoaPods
@@ -36,12 +36,12 @@ workflows:
           cd ios/App && pod install
       
       # Build configuration
-      - name: Build IPA for distribution
+      - name: Build IPA for development
         script: |
           xcode-project build-ipa \
             --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
             --scheme "$XCODE_SCHEME"
     
     artifacts:
-      - ios/App/build/ios/ipa/*.ipa  # Correct artifact path
+      - ios/App/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
