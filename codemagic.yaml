@@ -1,21 +1,10 @@
 workflows:
   ios-workflow:
     name: iOS Build
-    environment:
-      xcode: latest
     scripts:
       - npm install
+      - npm run build
       - npx cap sync ios
       - xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release
     artifacts:
       - ios/App/build/Release-iphoneos/*.ipa
-  android-workflow:
-    name: Android Build
-    environment:
-      android_signing: false
-    scripts:
-      - npm install
-      - npx cap sync android
-      - ./gradlew assembleRelease
-    artifacts:
-      - android/app/build/outputs/apk/release/*.apk
