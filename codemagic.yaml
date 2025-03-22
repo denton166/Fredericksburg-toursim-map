@@ -5,11 +5,9 @@ workflows:
       xcode: latest
     scripts:
       - npm install
-      # Add these 2 critical lines:
-      - npm install @capacitor/ios
-      - npx cap add ios
-      # Then continue with existing steps:
       - npx cap sync ios
-      - xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release
+      - cd ios && pod install
+      - xcodebuild -workspace App/App.xcworkspace -scheme App -configuration Release
     artifacts:
       - ios/App/build/Release-iphoneos/*.ipa
+
