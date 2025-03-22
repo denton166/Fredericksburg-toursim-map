@@ -1,34 +1,48 @@
 workflows:
-  ios-android-workflow:
-    name: iOS and Android Build
+  ios-workflow:
+    name: iOS Workflow
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Codemagic API Key
     environment:
-      xcode: latest
-      node: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.yourcompany.appname
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        APP_STORE_APP_ID: 1234567890 # Replace with your App Store ID
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
     scripts:
       - name: Install dependencies
         script: |
           npm install
           npm install -g @capacitor/cli
-      - name: Build iOS
+      - name: Update Capacitor
         script: |
           npx cap sync ios
-          xcodebuild build -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug
-      - name: Build Android
+      - name: Set up code signing
         script: |
-          npx cap sync android
-          cd android
-          ./gradlew assembleDebug
+          xcode-project use-profiles
+      - name: Increment build number
+        script: |
+          cd $CM_BUILD_DIR/ios/App
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APP_ID")
+          agvtool new-version -all $(($LATEST_BUILD_NUMBER + 1))
+      - name: Build iOS app
+        script: |
+          xcode-project build-ipa \
+            --workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
     artifacts:
-      - ios/App/build/**/*.app
-      - android/app/build/outputs/**/*.apk
-  web-workflow:
-    name: Web Build
-    environment:
-      node: latest
-    scripts:
-      - name: Install dependencies
-        script: npm install
-      - name: Build Web
-        script: npm run build
-    artifacts:
-      - www/**
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        submit_to_testflight: true
