@@ -1,6 +1,4 @@
-{
-  {
-    "name": "fredericksburg-tourism-map",
+   "name": "fredericksburg-tourism-map",
     "version": "1.0.0",
     "description": "Interactive tourism map for Fredericksburg, Texas",
     "main": "src/index.html",
