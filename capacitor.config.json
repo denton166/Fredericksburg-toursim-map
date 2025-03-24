@@ -1,6 +1,6 @@
 {
   "appId": "com.frederickburginteractivemap.app",
-  "appName": "npx cap add androidnpx cap add iosnpx cap sync",
+  "appName": "Fredericksburg-interactive-map",
   "webDir": "www",
   "cordova": {
     "preferences": {
